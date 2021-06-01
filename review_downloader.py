@@ -25,38 +25,71 @@ from selenium.webdriver import ActionChains
 
 # TESTING - CHROME MODE
 ##################################
-#options = Options()
-#options.binary_location = "/usr/bin/google-chrome"    #chrome binary location specified here
-#options.add_argument("--no-sandbox") #bypass OS security model
-#options.add_argument("--disable-dev-shm-usage") #overcome limited resource problems
-#options.add_experimental_option("excludeSwitches", ["enable-automation"])
-#options.add_experimental_option('useAutomationExtension', False)
-#options.add_argument("start-maximized")
-#options.add_argument("disable-infobars")
-#options.add_argument("--disable-extensions")
-#driver = webdriver.Chrome('drivers/chromedriver', options=options)
+options = Options()
+options.binary_location = "/usr/bin/google-chrome"    #chrome binary location specified here
+options.add_argument("--no-sandbox") #bypass OS security model
+options.add_argument("--disable-dev-shm-usage") #overcome limited resource problems
+options.add_experimental_option("excludeSwitches", ["enable-automation"])
+options.add_experimental_option('useAutomationExtension', False)
+options.add_argument("start-maximized")
+options.add_argument("disable-infobars")
+options.add_argument("--disable-extensions")
+driver = webdriver.Chrome('drivers/chromedriver', options=options)
 #################################################
 
 # RUN ON MINERVA - CHROME MODE
 ################################################
-options = Options()
-options.add_argument('--headless')
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
-options.binary_location = '/usr/bin/google-chrome'
-path_to_chromedriver = '/usr/bin/chromedriver'
-chrome_driver = '/mnt/minerva1/nlp/projects/imdb_reviews/chromedriver_86'
-path_to_chrome_driver = 'drivers/chromedriver'
-os.environ["webdriver.chrome.driver"] = path_to_chrome_driver
-driver = webdriver.Chrome(path_to_chrome_driver, options=options)
+#options = Options()
+#options.add_argument('--headless')
+#options.add_argument('--no-sandbox')
+#options.add_argument('--disable-dev-shm-usage')
+#options.binary_location = '/usr/bin/google-chrome'
+#path_to_chromedriver = '/mnt/minerva1/knot/projects/product_reviews_in_czech/drivers/chromedriver'
+#chrome_driver = '/mnt/minerva1/nlp/projects/imdb_reviews/chromedriver_86'
+#path_to_chrome_driver = 'drivers/chromedriver'
+#os.environ["webdriver.chrome.driver"] = path_to_chrome_driver
+#driver = webdriver.Chrome(path_to_chrome_driver, options=options)
 ##################################################
 
 catlist = []
+
+def output_print():
+    return
 
 ##
 # Download reviews and store them.
 # 
 def get_review(product_url, output_file):
+
+    max_review_scrolls = 100
+
+    try:
+
+        driver.get(str(product_url))
+    except:
+        return
+
+    time.sleep(1)
+
+    # BUTTON FOR ALL REVIEWS> 
+    #   class="product-reviews-opener-link Link Link--right"
+    #   class berore = class="product-reviews-opener"
+    while True:
+        time.sleep(0.1)
+        elm = "0"
+        for i in range(max_review_scrolls):
+            # Scroll down to last name in list
+            driver.execute_script("window.scrollTo(0, window.scrollY + 400)")
+            time.sleep(0.1)
+            try:
+                elm = driver.find_element_by_class_name('product-reviews-opener')
+                time.sleep(1)
+                elm.click()
+            except:
+                continue
+        
+        break
+    
     print(product_url)
     return
 
