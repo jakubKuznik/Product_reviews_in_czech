@@ -7,7 +7,10 @@
 # Every server gets throught urls in 
 # logs_and_input_files/input_files_for_each_server/
 
+from collections import OrderedDict
+from datetime import date, timedelta
 
+import requests
 import time
 import socket
 import sys
@@ -62,133 +65,48 @@ driver = webdriver.Chrome('drivers/chromedriver', options=options)
 
 catlist = []
 
+##
+# Format rewievs and print them to output file
+# @soup all reviews of given page
+# @product_url url of page that reviews are from
+def format_output(soup, product_url):
+    #print(soup)        
+    reviews = soup.find_all(class_="ProductReviewsItem experience")
+    for rev in reviews:
+        #najde informace o autorovi prispevku
+        author = rev.find(class_="ProductReviewsItem-header-user")
+        #najde obsah prispevku
+        text = rev.find(class_="ProductReviewsItem-main-content")     
+
+        #odtrhne bile znaky zleva a zprava jmena autora
+        aut = author.get_text().lstrip()
+        aut = aut.rstrip()
+        
+        print(aut)
 
 
-def formate_text(review_list, obj_reviews, actualization = False, latest_date = None, latest_author = None):
-        reviews = review_list.find_all(class_="ProductReviewsItem experience")
-        print(reviews)
+    print(product_url)
+        
 
-'''
-        #projde kazdy prispevek
-        for rev in reviews:
-                #najde informace o autorovi prispevku
-                author = rev.find(class_="user")
-                #najde obsah prispevku
-                text = rev.find(class_="revtext")
-
-                #odstrani fotku a nezadouci text "novacek" pod ni
-                if author.find(class_="userfoto"):
-                        author.find(class_="userfoto").clear()
-
-                #odtrhne bile znaky zleva a zprava jmena autora
-                aut = author.p.get_text().lstrip()
-                aut = aut.rstrip()
-
-                #datum pridani prispevku
-                datee = author.find(class_="date").get_text().replace("Přidáno: ", "")
-                #nahrazeni escape znaku mezerami
-                datee = datee.replace('\xa0', ' ')
-
-                #prevod data na jednotny format
-                #heureka pouziva "včera" - kdyz byl prispevek pridan vcera
-                #                                "před"  - kdyz byl prispevek pridan pred nekolika hodinami
-                if "včera" in datee:
-                        datee = (date.today() - timedelta(1)).strftime("%d. %B %Y").lstrip("0")
-                        datee = date_translate(datee)
-
-                if "před" in datee:
-                        datee = date.today().strftime("%d. %B %Y").lstrip("0")
-                        datee = date_translate(datee)
-#pokud provadim aktualizaci, je nutno kontrolovat kazdy prispevek, zda-li je jeho datum a autor jiny nez ten od posledniho stazeni
-                if actualization:
-                        #pokud se tedy narazi na shodu, vraci se vse co se doposud stahlo
-                        if((datee == latest_date) & (aut == latest_author)):
-                                #vraci se taky True, protoze stahovani bylo zastaveno 
-                                return (obj_reviews, True)
-
-                #hodnoceni produktu
-                rating = text.find(class_="hidden")
-                #orezani textu a zanechani pouze procentualni hodnoty
-                if rating:
-                        rating = rating.get_text().replace("Hodnocení produktu: ", "")
-
-                #doporuceni produktu
-                recommends = None
-
-                recommend_yes = text.find(class_="recommend-yes")
-                if recommend_yes:
-                        recommends = "YES"
-
-                recommend_no = text.find(class_="recommend-no")
-                if recommend_no:
-                        recommends = "NO"
-
-                #klady
-                plus = text.find(class_="plus")
-                pros = []
-                if plus:
-                        if plus.ul:
-                                #projde elementy tabulky a kazdy vlozi do seznamu
-                                for child in plus.ul.children:
-                                        pros.append(child.get_text())
-
-                #zapory
-                minus = text.find(class_="minus")
-                cons = []
-                if minus:
-                        if minus.ul:
-                                for child in minus.ul.children:
-                                        cons.append(child.get_text())
-#shrnuti
-                summary = None
-                if text.p:
-                        summary = text.p.get_text()
-
-                #dotaznik
-                questionnaire = None
-                questions = text.find(class_="individualQuestions")
-                if questions:
-                        answer = False
-                        a = questions.find_all('td')
-                        #projde seznam a z kazde polozky vytahne jen text
-                        for i in range(len(a)):
-                                a[i] = a[i].get_text()
-                        #ze seznamu vytvori slovnik - Otazka : Odpoved
-                        #questionnaire = {a[i]:a[i+1] for i in range(0, len(a), 2)}
-                        #serazena verze otazek a odpovedi
-                        questionnaire = OrderedDict([(a[i],a[i+1]) for i in range(0, len(a), 2)])
-
-                #sumarizace uzitecnosti prispevku
-                evalreview = text.find(class_="evalreview")
-                usefulness = None
-                if evalreview:
-                        usefulness = evalreview.get_text()
-                        evallist = evalreview.find_all('li')
-                        evallist.pop(0)
-                        for i in range(len(evallist)):
-                                evallist[i] = evallist[i].get_text()
-
-
-                #serazena verze objektu recenze
-                obj_rev = {"review":OrderedDict([("author",aut),("date",datee),("rating",rating),("recommends",recommends),("pros",pros),("cons",cons),("summary",summary),("questionnaire",questionnaire),("usefulness_of_review",evallist)])}
-
-                #vlozi do seznamu vsech recenzi k aktualnimu produktu
-                obj_reviews.append(obj_rev)
-
-        return (obj_reviews, False)
-
-'''
-
-
-
-
-
-
-
-
-
-def output_print():
     return
+'''
+    aut = "."
+    datee = "."
+    rating = "."
+    recommends = "."
+    pros = "."
+    cons = "."
+    summary = "."
+    questionnaire = "."
+    evallist = "."
+    
+
+    #review_list = infile.find(class_="ProductReviewsItem-innerContainer ProductReviewsItem--experience")
+    obj_rev = {"review":OrderedDict([("author",aut),("date",datee),("rating",rating),("recommends",recommends),\
+            ("pros",pros),("cons",cons),("summary",summary),("questionnaire",questionnaire),("usefulness_of_review",evallist)])}
+
+'''    
+
 
 ##
 # Download reviews and store them.
@@ -234,29 +152,13 @@ def get_review(product_url, output_file):
     except IOError:
         print("Error: Adresa nelze otevrit", file=sys.stderr)
 
+    #print("BS", infile)
     time.sleep(5)
-    print("BS", infile)
+    soup = BeautifulSoup(infile)
+    format_output(soup, product_url)
 
-    print(product_url)
-    return
-'''
-    aut = "."
-    datee = "."
-    rating = "."
-    recommends = "."
-    pros = "."
-    cons = "."
-    summary = "."
-    questionnaire = "."
-    evallist = "."
     
-
-    #review_list = infile.find(class_="ProductReviewsItem-innerContainer ProductReviewsItem--experience")
-    obj_rev = {"review":OrderedDict([("author",aut),("date",datee),("rating",rating),("recommends",recommends),\
-            ("pros",pros),("cons",cons),("summary",summary),("questionnaire",questionnaire),("usefulness_of_review",evallist)])}
-
-'''    
-
+    return
 
 
 
@@ -290,8 +192,8 @@ def get_next_page(page_file):
 
 def main():
 
-    # Get system hostname
     server_host_name = socket.gethostname()
+    # Get system hostname
 
     # Open output files
     if output_files_open() == False: sys.exit(2)  # check if files for output can be open
