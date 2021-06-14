@@ -9,6 +9,7 @@
 
 from collections import OrderedDict
 from datetime import date, timedelta
+import re
 
 import requests
 import time
@@ -65,6 +66,9 @@ driver = webdriver.Chrome('drivers/chromedriver', options=options)
 
 catlist = []
 
+
+
+
 ##
 # Format rewievs and print them to output file
 # @soup all reviews of given page
@@ -73,22 +77,67 @@ def format_output(soup, product_url):
     #print(soup)        
     reviews = soup.find_all(class_="ProductReviewsItem experience")
     for rev in reviews:
-        #najde informace o autorovi prispevku
-        author = rev.find(class_="ProductReviewsItem-header-user")
-        #najde obsah prispevku
-        text = rev.find(class_="ProductReviewsItem-main-content")     
-
-        #odtrhne bile znaky zleva a zprava jmena autora
-        aut = author.get_text().lstrip()
-        aut = aut.rstrip()
+        author = get_autor(rev)      #najde informace o autorovi prispevku
+        date = get_date(rev)         
+        raiting = get_rating(rev)
         
-        print(aut)
+        #najde obsah prispevku
+        #text = rev.find(class_="ProductReviewsItem-main-content")     
+        #print(author, date, raiting)
 
 
     print(product_url)
-        
-
     return
+
+
+## 
+# class="ProductReviewsItem-header-date"
+#
+def get_date(rev):
+        date = rev.find(class_="ProductReviewsItem-header-date")
+        date = date.get_text().lstrip()
+        date = date.rstrip()
+        return date
+
+## 
+# class="ProductReviewsItem-header-user"
+#
+def get_autor(rev):
+        author = rev.find(class_="ProductReviewsItem-header-user")
+        aut = author.get_text().lstrip()
+        aut = aut.rstrip()
+        aut = aut.replace("Ověřený nákup", "")
+        return aut
+
+
+
+## 
+# class="Stars-goldWrap"
+#
+def get_rating(rev):
+        rating = ""
+        rating = rev.find(class_="Stars-goldWrap")
+        str_rating = str(rating)
+        index = str_rating.find('width: ')
+        print(index)
+
+        number = ""
+        print(str_rating[index+7], str_rating[index+8], str_rating[index+9])
+        if str_rating[index+7].isdigit == True:
+                print("x1")
+                number = str_rating[index+7]
+        if str_rating[index+8].isdigit == True:
+                print("x2")
+                number = str_rating[index+7:index+8]
+        if str_rating[index+9].isdigit == True:
+                print("x3")
+                number = str_rating[index+7:index+9]
+       
+        print("num> ", number)
+        
+        return "d"
+
+
 '''
     aut = "."
     datee = "."
