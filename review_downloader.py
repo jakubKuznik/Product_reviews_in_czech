@@ -83,7 +83,7 @@ def format_output(soup, product_url):
         
         #najde obsah prispevku
         #text = rev.find(class_="ProductReviewsItem-main-content")     
-        #print(author, date, raiting)
+        print(author, date, raiting)
 
 
     print(product_url)
@@ -119,23 +119,15 @@ def get_rating(rev):
         rating = rev.find(class_="Stars-goldWrap")
         str_rating = str(rating)
         index = str_rating.find('width: ')
-        print(index)
 
         number = ""
-        print(str_rating[index+7], str_rating[index+8], str_rating[index+9])
-        if str_rating[index+7].isdigit == True:
-                print("x1")
-                number = str_rating[index+7]
-        if str_rating[index+8].isdigit == True:
-                print("x2")
-                number = str_rating[index+7:index+8]
-        if str_rating[index+9].isdigit == True:
-                print("x3")
-                number = str_rating[index+7:index+9]
-       
-        print("num> ", number)
+        for x in range(0, 4):
+                if str_rating[index+x+7] == '%':
+                        number+= '%'
+                        break
+                number+= str_rating[index+x+7]
         
-        return "d"
+        return number
 
 
 '''
@@ -162,7 +154,8 @@ def get_rating(rev):
 # 
 def get_review(product_url, output_file):
 
-    max_review_scrolls = 100
+    #max_review_scrolls = 100
+    max_review_scrolls = 10
 
     try:
 
@@ -183,7 +176,7 @@ def get_review(product_url, output_file):
     for i in range(max_review_scrolls):
         # Scroll down to last name in list
         driver.execute_script("window.scrollTo(0, window.scrollY + 400)")
-        time.sleep(0.1)
+        time.sleep(0.05)
         try:
                 elm = driver.find_element_by_class_name('product-reviews-opener')
                 time.sleep(1)
