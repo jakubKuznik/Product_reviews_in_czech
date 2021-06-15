@@ -83,7 +83,10 @@ def format_output(soup, product_url):
     for rev in reviews:
         author = get_autor(rev)      # find author
         date = get_date(rev)         # findout date that review was writen    
-        rating = get_rating(rev)    # find rating in percent 
+        rating = get_rating(rev)     # find rating in percent
+        pros = get_pros(rev)
+        cons = get_cons(rev)
+        summary = get_summary(rev) 
         
         #najde obsah prispevku
         #text = rev.find(class_="ProductReviewsItem-main-content")     
@@ -96,6 +99,10 @@ def format_output(soup, product_url):
 # class="ProductReviewsItem-experience ProductReviewsItem-experience--overall"
 def get_summary(rev):
     summary = ""
+    summary = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--overall")
+    summary = summary.get_text().lstrip()
+    summary = summary.rstrip()
+    print("SUM ",summary)
 
     return summary
 
@@ -103,13 +110,20 @@ def get_summary(rev):
 # class="ProductReviewsItem-experience ProductReviewsItem-experience--negative"
 def get_cons(rev):
     cons = ""
-
+    cons = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--negative")
+    cons = cons.get_text().lstrip()
+    cons = cons.rstrip()
+    print("CONS",cons)
     return cons
+
 ##
 # class="ProductReviewsItem-experience ProductReviewsItem-experience--positive"
 def get_pros(rev):
     pros = ""
-
+    pros = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--positive")
+    pros = pros.get_text().lstrip()
+    pros = pros.rstrip()
+    print("PROS", pros)
     return pros
 
 
@@ -182,6 +196,8 @@ def count_reviews(driver):
 # Download reviews and store them.
 # 
 def get_review(product_url, output_file):
+    
+    time.sleep(0.5)
     try:
         driver.get(str(product_url))
     except:
@@ -212,7 +228,7 @@ def get_review(product_url, output_file):
     except IOError:
         print("Error: Adresa nelze otevrit", file=sys.stderr)
 
-    time.sleep(3)
+    time.sleep(5)
     soup = BeautifulSoup(infile)
     ## Get all the reviews information and print them to output 
     format_output(soup, product_url)
