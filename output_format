@@ -1,0 +1,27 @@
+{
+   "REVIEWS": [
+      {
+         "product": [
+            {
+               "review": {	
+                  "author":"name_surname",
+                  "date":"DD Month YYYY",
+                  "rating":"XY%",
+                  "recommends":"YES/NO/NULL",
+                  "pros":[],
+                  "cons":[],
+                  "summary":"some text",
+                  "questionnaire":{"Question1":"Answer1","Question2":"Answer2", ...},
+                  "usefulness_of_review":["ANO (X)","NE (Y)"]
+               }
+            }, ...
+         ]
+      }, ...
+   ]
+}
+
+
+{"REVIEWS": [{ "product": [{"review": {"author":"name_surname","date":"DD Month YYYY","rating":"XY%","recommends":"YES/NO/NULL","pros":[],"cons":[],
+"summary":"some text","questionnaire":{"Question1":"Answer1","Question2":"Answer2", ...},"usefulness_of_review":["ANO (X)","NE (Y)"]}}, ...]}, ...]}
+}
+
