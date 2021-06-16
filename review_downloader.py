@@ -77,20 +77,18 @@ catlist = []
 #          - "cons" - seznam všech záporů produktu
 #          - "summary" - volný text vyjádření recenzenta k produktu
 #          - "usefulness_of_review" - užitečnost recenze z pohledu ostatních recenzentů označená palci nahoru nebo dolů
-def format_output(soup, product_url):
+def format_output(soup, product_url, product_name):
     #print(soup)        
     reviews = soup.find_all(class_="ProductReviewsItem experience")
     for rev in reviews:
         author = get_autor(rev)      # find author
         date = get_date(rev)         # findout date that review was writen    
         rating = get_rating(rev)     # find rating in percent
-        pros = get_pros(rev)
-        cons = get_cons(rev)
-        summary = get_summary(rev) 
+        pros = get_pros(rev)         # find positive information
+        cons = get_cons(rev)         # find negative information
+        summary = get_summary(rev)   # find product review summary 
         
-        #najde obsah prispevku
-        #text = rev.find(class_="ProductReviewsItem-main-content")     
-        print(author, date, rating)
+        print(product_name, author, date, rating)
 
 
     print(product_url)
@@ -102,7 +100,7 @@ def get_summary(rev):
     summary = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--overall")
     summary = summary.get_text().lstrip()
     summary = summary.rstrip()
-    print("SUM ",summary)
+   # print("SUM ",summary)
 
     return summary
 
@@ -113,7 +111,7 @@ def get_cons(rev):
     cons = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--negative")
     cons = cons.get_text().lstrip()
     cons = cons.rstrip()
-    print("CONS",cons)
+    #print("CONS",cons)
     return cons
 
 ##
@@ -123,7 +121,7 @@ def get_pros(rev):
     pros = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--positive")
     pros = pros.get_text().lstrip()
     pros = pros.rstrip()
-    print("PROS", pros)
+    #print("PROS", pros)
     return pros
 
 
@@ -191,7 +189,15 @@ def count_reviews(driver):
 
     return reviews_sum
 
-
+##
+# Get product name from whole soup 
+# class_="Breadcrumbs-title"
+def get_product_name(soup):
+    product_name = soup.find(class_="Breadcrumbs-title")   
+    product_name = product_name.get_text().lstrip()
+    product_name = product_name.rstrip()
+    return product_name
+       
 ##
 # Download reviews and store them.
 # 
@@ -230,8 +236,12 @@ def get_review(product_url, output_file):
 
     time.sleep(5)
     soup = BeautifulSoup(infile)
+    
+    soup2 = soup
+    product_name = get_product_name(soup2)
+
     ## Get all the reviews information and print them to output 
-    format_output(soup, product_url)
+    format_output(soup, product_url, product_name)
 
     return
 
