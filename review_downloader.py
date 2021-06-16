@@ -9,8 +9,6 @@
 
 from collections import OrderedDict
 from datetime import date, timedelta
-import re
-
 import requests
 import time
 import socket
@@ -79,38 +77,81 @@ catlist = []
 #          - "usefulness_of_review" - užitečnost recenze z pohledu ostatních recenzentů označená palci nahoru nebo dolů
 def format_output(soup, product_url, product_name):
     #print(soup)        
+
+            
+    #obj_reviews = []
+    
     reviews = soup.find_all(class_="ProductReviewsItem experience")
+    time.sleep(1)
     for rev in reviews:
         author = get_autor(rev)      # find author
         date = get_date(rev)         # findout date that review was writen    
         rating = get_rating(rev)     # find rating in percent
         pros = get_pros(rev)         # find positive information
         cons = get_cons(rev)         # find negative information
-        summary = get_summary(rev)   # find product review summary 
+        summary = get_summary(rev)   # find product review summary
+        ussefulness = [] 
+
         
+        #serazena verze objektu recenze
+        ###obj_rev = {"review":OrderedDict([("author",author),("date",date),("rating",rating),("pros",pros),("cons",cons),("summary",summary),("usefulness_of_review",ussefulness)])}
+        
+        #vlozi do seznamu vsech recenzi k aktualnimu produktu
+        ###obj_reviews.append(obj_rev)
+
         print(product_name, author, date, rating)
+        print(pros)
+        print(cons)
+        print(summary)
 
-
+    #print(obj_reviews)
     print(product_url)
-    return
+    return 0
+
+
+
+##
+# positive - class="ProductReviewsItem-footer-voting-button ProductReviewsItem-footer-voting-button--like"
+# negative - class="ProductReviewsItem-footer-voting-button ProductReviewsItem-footer-voting-button--dislike"
+def get_ussefulness(rev):
+    ussefulness = []
+    
+    yes = "ANO"
+    yes_int = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--overall")
+    yes_int = yes_int.get_text().lstrip()
+    yes_int = yes_int.rstrip()
+
+    print("XXX", yes_int)
+
+    no = "NE"
+    no_int = 0
+    return yes_int
+
+
 ##
 # class="ProductReviewsItem-experience ProductReviewsItem-experience--overall"
 def get_summary(rev):
     summary = ""
-    summary = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--overall")
-    summary = summary.get_text().lstrip()
-    summary = summary.rstrip()
+    try:
+        summary = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--overall")
+        sum = summary.get_text().lstrip()
+        sum = sum.rstrip()
+    except:
+        return ""
    # print("SUM ",summary)
 
-    return summary
+    return sum
 
 ##
 # class="ProductReviewsItem-experience ProductReviewsItem-experience--negative"
 def get_cons(rev):
     cons = ""
-    cons = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--negative")
-    cons = cons.get_text().lstrip()
-    cons = cons.rstrip()
+    try:
+        cons = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--negative")
+        cons = cons.get_text().lstrip()
+        cons = cons.rstrip()
+    except:
+        return ""
     #print("CONS",cons)
     return cons
 
@@ -118,9 +159,12 @@ def get_cons(rev):
 # class="ProductReviewsItem-experience ProductReviewsItem-experience--positive"
 def get_pros(rev):
     pros = ""
-    pros = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--positive")
-    pros = pros.get_text().lstrip()
-    pros = pros.rstrip()
+    try:
+        pros = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--positive")
+        pros = pros.get_text().lstrip()
+        pros = pros.rstrip()
+    except:
+        return ""
     #print("PROS", pros)
     return pros
 
@@ -130,21 +174,21 @@ def get_pros(rev):
 # class="ProductReviewsItem-header-date"
 #
 def get_date(rev):
-        date = rev.find(class_="ProductReviewsItem-header-date")
-        date = date.get_text().lstrip()
-        date = date.rstrip()
-        return date
+    date = rev.find(class_="ProductReviewsItem-header-date")
+    date = date.get_text().lstrip()
+    date = date.rstrip()
+    return date
 
 ## 
 # Get autor name.
 # class="ProductReviewsItem-header-user"
 #
 def get_autor(rev):
-        author = rev.find(class_="ProductReviewsItem-header-user")
-        aut = author.get_text().lstrip()
-        aut = aut.rstrip()
-        aut = aut.replace("Ověřený nákup", "")
-        return aut
+    author = rev.find(class_="ProductReviewsItem-header-user")
+    aut = author.get_text().lstrip()
+    aut = aut.rstrip()
+    aut = aut.replace("Ověřený nákup", "")
+    return aut
 
 
 
@@ -154,19 +198,19 @@ def get_autor(rev):
 # class="Stars-goldWrap"
 #
 def get_rating(rev):
-        rating = ""
-        rating = rev.find(class_="Stars-goldWrap")
-        str_rating = str(rating)
-        index = str_rating.find('width: ')
+    rating = ""
+    rating = rev.find(class_="Stars-goldWrap")
+    str_rating = str(rating)
+    index = str_rating.find('width: ')
 
-        number = ""
-        for x in range(0, 4):
-                if str_rating[index+x+7] == '%':
-                        number+= '%'
-                        break
-                number+= str_rating[index+x+7]
+    number = ""
+    for x in range(0, 4):
+        if str_rating[index+x+7] == '%':
+            number+= '%'
+            break
+        number+= str_rating[index+x+7]
         
-        return number
+    return number
 
 
 
@@ -209,18 +253,20 @@ def get_review(product_url, output_file):
     except:
         return
     
+    time.sleep(0.5)
+    
     ## TODO MAX REVIEW SCROLL FROM NUMBER OF REVIEWS 
     # max_review_scrolls = 100
-    max_review_scrolls = 10
+    max_review_scrolls = 20
     
-    time.sleep(0.05)
+    time.sleep(0.1)
     elm = "0"
     
     # LOAD ALL REVIEWS
     for i in range(max_review_scrolls):
         # Scroll down to last name in list
         driver.execute_script("window.scrollTo(0, window.scrollY + 400)")
-        time.sleep(0.05)
+        time.sleep(0.1)
         try:
                 elm = driver.find_element_by_class_name('product-reviews-opener')
                 time.sleep(1)
@@ -236,6 +282,7 @@ def get_review(product_url, output_file):
 
     time.sleep(5)
     soup = BeautifulSoup(infile)
+    time.sleep(2)
     
     soup2 = soup
     product_name = get_product_name(soup2)
