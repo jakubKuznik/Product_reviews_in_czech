@@ -9,6 +9,8 @@
 
 from collections import OrderedDict
 from datetime import date, timedelta
+import re
+from urllib.parse import uses_fragment
 import requests
 import time
 import socket
@@ -76,10 +78,7 @@ catlist = []
 #          - "summary" - volný text vyjádření recenzenta k produktu
 #          - "usefulness_of_review" - užitečnost recenze z pohledu ostatních recenzentů označená palci nahoru nebo dolů
 def format_output(soup, product_url, product_name):
-    #print(soup)        
-
-            
-    #obj_reviews = []
+    obj_reviews = []
     
     reviews = soup.find_all(class_="ProductReviewsItem experience")
     time.sleep(1)
@@ -90,22 +89,23 @@ def format_output(soup, product_url, product_name):
         pros = get_pros(rev)         # find positive information
         cons = get_cons(rev)         # find negative information
         summary = get_summary(rev)   # find product review summary
-        ussefulness = [] 
-
+        ussefulness = get_ussefulness(rev) 
         
         #serazena verze objektu recenze
-        ###obj_rev = {"review":OrderedDict([("author",author),("date",date),("rating",rating),("pros",pros),("cons",cons),("summary",summary),("usefulness_of_review",ussefulness)])}
-        
+        obj_rev = {"review":OrderedDict([("author",author),("date",date),("rating",rating),("pros",pros),("cons",cons),("summary",summary),("usefulness_of_review",ussefulness)])}
         #vlozi do seznamu vsech recenzi k aktualnimu produktu
-        ###obj_reviews.append(obj_rev)
+        obj_reviews.append(obj_rev)
 
-        print(product_name, author, date, rating)
-        print(pros)
-        print(cons)
-        print(summary)
+   #     print(product_name, author, date, rating, pros, cons, summary, ussefulness)
+        #print(author)
+        #print(date)
+        #print(rating)
+        #print(pros)
+        #print(cons)
+        #print(summary)
+        #print(ussefulness)
 
-    #print(obj_reviews)
-    print(product_url)
+    print(obj_reviews)
     return 0
 
 
@@ -116,16 +116,21 @@ def format_output(soup, product_url, product_name):
 def get_ussefulness(rev):
     ussefulness = []
     
-    yes = "ANO"
-    yes_int = rev.find(class_="ProductReviewsItem-experience ProductReviewsItem-experience--overall")
+    yes = "ANO "
+    yes_int = rev.find(class_="ProductReviewsItem-footer-voting-button ProductReviewsItem-footer-voting-button--like")
     yes_int = yes_int.get_text().lstrip()
     yes_int = yes_int.rstrip()
 
-    print("XXX", yes_int)
+    no = "NO "
+    no_int = rev.find(class_="ProductReviewsItem-footer-voting-button ProductReviewsItem-footer-voting-button--dislike")
+    no_int = no_int.get_text().lstrip()
+    no_int = no_int.rstrip()
 
-    no = "NE"
-    no_int = 0
-    return yes_int
+    yes = yes + yes_int
+    no = no + no_int
+
+    ussefulness = [yes, no]
+    return ussefulness
 
 
 ##
