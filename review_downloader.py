@@ -9,7 +9,7 @@
 
 from collections import OrderedDict
 from datetime import date, timedelta
-import re
+import json 
 from urllib.parse import uses_fragment
 import requests
 import time
@@ -78,7 +78,9 @@ catlist = []
 #          - "summary" - volný text vyjádření recenzenta k produktu
 #          - "usefulness_of_review" - užitečnost recenze z pohledu ostatních recenzentů označená palci nahoru nebo dolů
 def format_output(soup, product_url, product_name):
+    obj_product = {}
     obj_reviews = []
+    
     
     reviews = soup.find_all(class_="ProductReviewsItem experience")
     time.sleep(1)
@@ -96,18 +98,9 @@ def format_output(soup, product_url, product_name):
         #vlozi do seznamu vsech recenzi k aktualnimu produktu
         obj_reviews.append(obj_rev)
 
-   #     print(product_name, author, date, rating, pros, cons, summary, ussefulness)
-        #print(author)
-        #print(date)
-        #print(rating)
-        #print(pros)
-        #print(cons)
-        #print(summary)
-        #print(ussefulness)
-
-    print(obj_reviews)
-    return 0
-
+    obj_product[product_name] = obj_reviews
+    #print(obj_product)
+    return obj_product
 
 
 ##
@@ -293,9 +286,7 @@ def get_review(product_url, output_file):
     product_name = get_product_name(soup2)
 
     ## Get all the reviews information and print them to output 
-    format_output(soup, product_url, product_name)
-
-    return
+    return format_output(soup, product_url, product_name)
 
 
 
@@ -327,6 +318,7 @@ def get_next_page(page_file):
     return page_file.readline()
 
 
+
 def main():
 
     server_host_name = socket.gethostname()
@@ -339,9 +331,18 @@ def main():
     if read_file_open(server_host_name) == False: sys.exit(2)  # check if files for tput can be open
     page_file = read_file_open(server_host_name) #
 
-    for i in range(10):
-        get_review(get_next_page(page_file), output_file)        
 
+    all_product = []    # all product with reviews 
+    for i in range(10):
+        all_product.append(get_review(get_next_page(page_file), output_file))
+
+
+    #uprava koncoveho objektu
+    final_JSON = {}
+    final_JSON["REVIEWS"] = all_product
+    json_out = json.dumps(final_JSON, indent=4, ensure_ascii=False)  #formatovani koncoveho objektu
+    output_file.write(json_out)
+    print(json_out)
 
     output_file.close()
     page_file.close()
