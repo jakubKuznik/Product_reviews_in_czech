@@ -64,8 +64,6 @@ driver = webdriver.Chrome('drivers/chromedriver', options=options)
 
 catlist = []
 
-
-
 ##
 # Format rewievs and print them to output file
 # @soup all reviews of given page
@@ -312,17 +310,29 @@ def read_file_open(server_host_name):
         return False
     return read_file
 
+# count lines in given file 
+def get_file_lines(file):
+    path = "logs_and_input_files/input_files_for_each_server_reviews/"
+    path = path + file
+    file = open(path, "r")
+    line_count = 0
+    for line in file:
+        if line != "\n":
+            line_count += 1
+    file.close()        
+    return line_count
+
 
 #Get next category from file
 def get_next_page(page_file):
     return page_file.readline()
 
 
-
 def main():
 
-    server_host_name = socket.gethostname()
-    # Get system hostname
+    server_host_name = socket.gethostname() # Get system hostname
+
+    products_sum = get_file_lines(server_host_name)
 
     # Open output files
     if output_files_open() == False: sys.exit(2)  # check if files for output can be open
@@ -331,11 +341,9 @@ def main():
     if read_file_open(server_host_name) == False: sys.exit(2)  # check if files for tput can be open
     page_file = read_file_open(server_host_name) #
 
-
     all_product = []    # all product with reviews 
-    for i in range(10):
+    for i in range(products_sum):
         all_product.append(get_review(get_next_page(page_file), output_file))
-
 
     #uprava koncoveho objektu
     final_JSON = {}
@@ -347,7 +355,6 @@ def main():
     output_file.close()
     page_file.close()
 #    display.stop()
-
 
 
 if __name__ == '__main__':
