@@ -36,33 +36,32 @@ from bs4 import BeautifulSoup
 
 # TESTING - CHROME MODE
 ##################################
-options = Options()
-options.binary_location = "/usr/bin/google-chrome"    #chrome binary location specified here
-options.add_argument("--no-sandbox") #bypass OS security model
-options.add_argument("--disable-dev-shm-usage") #overcome limited resource problems
-options.add_experimental_option("excludeSwitches", ["enable-automation"])
-options.add_experimental_option('useAutomationExtension', False)
-options.add_argument("start-maximized")
-options.add_argument("disable-infobars")
-options.add_argument("--disable-extensions")
-driver = webdriver.Chrome('drivers/chromedriver', options=options)
-#################################################
-
-# RUN ON MINERVA - CHROME MODE
-################################################
 #options = Options()
-#options.add_argument('--headless')
-#options.add_argument('--no-sandbox')
-#options.add_argument('--disable-dev-shm-usage')
-#options.binary_location = '/usr/bin/google-chrome'
-#path_to_chromedriver = '/mnt/minerva1/knot/projects/product_reviews_in_czech/drivers/chromedriver'
-#chrome_driver = '/mnt/minerva1/nlp/projects/imdb_reviews/chromedriver_86'
-#path_to_chrome_driver = 'drivers/chromedriver'
-#os.environ["webdriver.chrome.driver"] = path_to_chrome_driver
-#driver = webdriver.Chrome(path_to_chrome_driver, options=options)
+#options.binary_location = "/usr/bin/google-chrome"    #chrome binary location specified here
+#options.add_argument("--no-sandbox") #bypass OS security model
+#options.add_argument("--disable-dev-shm-usage") #overcome limited resource problems
+#options.add_experimental_option("excludeSwitches", ["enable-automation"])
+#options.add_experimental_option('useAutomationExtension', False)
+#options.add_argument("start-maximized")
+#options.add_argument("disable-infobars")
+#options.add_argument("--disable-extensions")
+#driver = webdriver.Chrome('drivers/chromedriver', options=options)
+#################################################
+# RUN ON MINERVA - CHROME MODE
+
+################################################
+options = Options()
+options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+options.binary_location = '/usr/bin/google-chrome'
+path_to_chromedriver = '/mnt/minerva1/knot/projects/product_reviews_in_czech/drivers/chromedriver'
+chrome_driver = '/mnt/minerva1/nlp/projects/imdb_reviews/chromedriver_86'
+path_to_chrome_driver = 'drivers/chromedriver'
+os.environ["webdriver.chrome.driver"] = path_to_chrome_driver
+driver = webdriver.Chrome(path_to_chrome_driver, options=options)
 ##################################################
 
-catlist = []
 
 ##
 # Format rewievs and print them to output file
@@ -108,14 +107,21 @@ def get_ussefulness(rev):
     ussefulness = []
     
     yes = "ANO "
-    yes_int = rev.find(class_="ProductReviewsItem-footer-voting-button ProductReviewsItem-footer-voting-button--like")
-    yes_int = yes_int.get_text().lstrip()
-    yes_int = yes_int.rstrip()
+    try:
+        yes_int = rev.find(class_="ProductReviewsItem-footer-voting-button ProductReviewsItem-footer-voting-button--like")
+        yes_int = yes_int.get_text().lstrip()
+        yes_int = yes_int.rstrip()
+    except:
+        yes_int = "null"
 
     no = "NO "
-    no_int = rev.find(class_="ProductReviewsItem-footer-voting-button ProductReviewsItem-footer-voting-button--dislike")
-    no_int = no_int.get_text().lstrip()
-    no_int = no_int.rstrip()
+    try:
+        no_int = rev.find(class_="ProductReviewsItem-footer-voting-button ProductReviewsItem-footer-voting-button--dislike")
+        no_int = no_int.get_text().lstrip()
+        no_int = no_int.rstrip()
+    except:
+        no_int = "null"
+
 
     yes = yes + yes_int
     no = no + no_int
@@ -170,9 +176,12 @@ def get_pros(rev):
 # class="ProductReviewsItem-header-date"
 #
 def get_date(rev):
-    date = rev.find(class_="ProductReviewsItem-header-date")
-    date = date.get_text().lstrip()
-    date = date.rstrip()
+    try:
+        date = rev.find(class_="ProductReviewsItem-header-date")
+        date = date.get_text().lstrip()
+        date = date.rstrip()
+    except:
+        date = "null"
     return date
 
 ## 
@@ -180,10 +189,13 @@ def get_date(rev):
 # class="ProductReviewsItem-header-user"
 #
 def get_autor(rev):
-    author = rev.find(class_="ProductReviewsItem-header-user")
-    aut = author.get_text().lstrip()
-    aut = aut.rstrip()
-    aut = aut.replace("Ověřený nákup", "")
+    try:
+        author = rev.find(class_="ProductReviewsItem-header-user")
+        aut = author.get_text().lstrip()
+        aut = aut.rstrip()
+        aut = aut.replace("Ověřený nákup", "")
+    except:
+        aut = "null"
     return aut
 
 
@@ -222,7 +234,7 @@ def count_reviews(driver):
         print("Error: Adresa nelze otevrit", file=sys.stderr)
 
     time.sleep(3)
-    soup = BeautifulSoup(infile)
+    soup = BeautifulSoup(infile, "html.parser")
     
     reviews_sum = soup.find(class_="ProductRating-rating-count")
     print("GGGGG",reviews_sum)
@@ -233,9 +245,12 @@ def count_reviews(driver):
 # Get product name from whole soup 
 # class_="Breadcrumbs-title"
 def get_product_name(soup):
-    product_name = soup.find(class_="Breadcrumbs-title")   
-    product_name = product_name.get_text().lstrip()
-    product_name = product_name.rstrip()
+    try:
+        product_name = soup.find(class_="Breadcrumbs-title")   
+        product_name = product_name.get_text().lstrip()
+        product_name = product_name.rstrip()
+    except:    
+        product_name = "unknown"
     return product_name
        
 ##
@@ -277,12 +292,14 @@ def get_review(product_url, output_file):
         print("Error: Adresa nelze otevrit", file=sys.stderr)
 
     time.sleep(5)
-    soup = BeautifulSoup(infile)
+    soup = BeautifulSoup(infile, "html.parser")
     time.sleep(2)
     
     soup2 = soup
-    product_name = get_product_name(soup2)
 
+    product_name = get_product_name(soup2)
+    if product_name == "unknown":
+        return 0
     ## Get all the reviews information and print them to output 
     return format_output(soup, product_url, product_name)
 
@@ -343,7 +360,10 @@ def main():
 
     all_product = []    # all product with reviews 
     for i in range(products_sum):
-        all_product.append(get_review(get_next_page(page_file), output_file))
+        rewiev = get_review(get_next_page(page_file), output_file)
+        if rewiev == 0:
+            continue
+        all_product.append(rewiev)
 
     #uprava koncoveho objektu
     final_JSON = {}
