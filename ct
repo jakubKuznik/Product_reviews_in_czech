@@ -1,2 +1,3 @@
-scp products_url_downloader.py all_zbozi.cz_categories_url all_zbozi.cz_products_url categories_url_downloader.py xkuzni04@minerva1.fit.vutbr.cz:\/mnt/minerva1/knot/projects/product_reviews_in_czech
+scp paralel_ssh_run_product_download.sh paralel_ssh_run_review_download.sh products_url_downloader.py review_downloader.py categories_url_downloader.py run_product_download.sh run_review_download.sh xkuzni04@minerva1.fit.vutbr.cz:\/mnt/minerva1/knot/projects/product_reviews_in_czech
+
 scp -r drivers logs_and_input_files xkuzni04@minerva1.fit.vutbr.cz:\/mnt/minerva1/knot/projects/product_reviews_in_czech
