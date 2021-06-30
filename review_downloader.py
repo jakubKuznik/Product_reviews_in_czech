@@ -308,7 +308,7 @@ def get_review(product_url, output_file):
 # Check if output files can be open
 def output_files_open():
     try:
-        outfile = open("logs_and_input_files/all_zbozi.cz_reviews", 'a')
+        outfile = open("logs_and_input_files/all_zbozi.cz_reviews.log", 'a')
     except IOError:
         sys.stderr.write("Cannot open outfile")
         return False
