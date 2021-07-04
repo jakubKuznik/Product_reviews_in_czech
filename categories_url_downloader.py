@@ -17,6 +17,8 @@ import time
 import sys
 from typing import List, Any
 
+import argparse
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -49,6 +51,8 @@ driver = webdriver.Chrome('drivers/chromedriver', options=options)
 
 category_indicator = []  # every url ll be checked if i was looking in
 catlist = []
+
+
 
 
 # Recursive function that should get all the pages
@@ -92,7 +96,7 @@ def open_category(url):
 # return false if not
 def output_files_open():
     try:
-        outfile = open("logs_and_input_files/all_zbozi.cz_products_url", 'w')
+        outfile = open("logs_and_input_files/all_zbozi.cz_categories_url.log", 'a')
     except IOError:
         print("nelze otevrit outfile", file=sys.stderr)
         return False
@@ -108,9 +112,34 @@ def filter_urls(urls, substring):
 
     return out
 
+'''Zpracuje argumenty prikazove radky'''
+def parse_args():
+        
+        parser = argparse.ArgumentParser(description='KNOT - product reviews in czech - Author: Jakub Kuzník {xkuzni04} \
+        ', add_help=False)
+        parser.add_argument("-h", "--help", action="count", default=0, help="tisk napovedy")
+        
+        try:
+                args = parser.parse_args()
+        except:
+                sys.exit(1)
+
+        if(args.help == 1):
+                if(len(sys.argv) == 2):
+                        parser.print_help()
+                        print("\n\nProgram stáhne veškere kategorie z webu zboží.cz\nVýstupní soubor: logs_and_input_files/all_zbozi.cz_categories_url.log\n")
+                        sys.exit(0)
+                else:
+                        print("Error: Help with other argument", file=sys.stderr)
+                        sys.exit(1)
+
+        return args
+
+
 
 def main():
     # Open output files
+    parse_args()
     if output_files_open() == False: sys.exit(2)  # check if files for output can be open
     output_file = output_files_open()
 
