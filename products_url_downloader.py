@@ -11,6 +11,7 @@
 import time
 import socket
 import sys
+import argparse
 import os
 from typing import List, Any
 
@@ -105,7 +106,7 @@ def output_files_open():
 
 # Check if input file can be open
 def read_file_open(server_host_name):
-    path = "logs_and_input_files/input_files_for_each_server/"
+    path = "logs_and_input_files/input_files_for_each_server_products/"
     path = path + server_host_name
     print(path)
     try:
@@ -130,11 +131,37 @@ def filter_urls(urls, substring):
 def get_next_category(category_file):
     return category_file.readline()
 
+## 
+# Parse arguments'
+def parse_args():
+        
+        parser = argparse.ArgumentParser(description='KNOT - product reviews in czech - Author: Jakub Kuzník {xkuzni04} \
+        ', add_help=False)
+        parser.add_argument("-h", "--help", action="count", default=0, help="tisk napovedy")
+        
+        try:
+                args = parser.parse_args()
+        except:
+                sys.exit(1)
+
+        if(args.help == 1):
+                if(len(sys.argv) == 2):
+                        parser.print_help()
+                        print("\n\nProgram otevře vstupní soubor který je stejný jako hostname serveru logs_and_input_files/input_files_for_each_server_products/hostname\nPostupně začne ukládat veškeré url jednotlivých produktů do souboru logs_and_input_files/all_zbozi.cz_products_url \n")
+                        sys.exit(0)
+                else:
+                        print("Error: Help with other argument", file=sys.stderr)
+                        sys.exit(1)
+
+        return args
 
 def main():
 
-    # Get system hostname
+    parse_args()
+
+    # Get system hostname becouse every knot server has its own input file 
     server_host_name = socket.gethostname()
+    print(server_host_name)
 
     # Open output files
     if output_files_open() == False: sys.exit(2)  # check if files for output can be open

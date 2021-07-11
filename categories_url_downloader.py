@@ -111,8 +111,8 @@ def filter_urls(urls, substring):
             out.append(url)
 
     return out
-
-'''Zpracuje argumenty prikazove radky'''
+## 
+# Parse arguments
 def parse_args():
         
         parser = argparse.ArgumentParser(description='KNOT - product reviews in czech - Author: Jakub Kuzník {xkuzni04} \

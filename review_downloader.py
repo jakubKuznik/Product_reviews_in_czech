@@ -13,6 +13,7 @@ import json
 from urllib.parse import uses_fragment
 import requests
 import time
+import argparse
 import socket
 import sys
 import os
@@ -305,7 +306,8 @@ def get_review(product_url, output_file):
 
 
 
-# Check if output files can be open
+##
+#  Check if output files can be open
 def output_files_open():
     try:
         outfile = open("logs_and_input_files/all_zbozi.cz_reviews.log", 'a')
@@ -315,7 +317,8 @@ def output_files_open():
     return outfile
 
 
-# Check if input file can be open
+##
+#  Check if input file can be open
 def read_file_open(server_host_name):
     path = "logs_and_input_files/input_files_for_each_server_reviews/"
     path = path + server_host_name
@@ -327,7 +330,8 @@ def read_file_open(server_host_name):
         return False
     return read_file
 
-# count lines in given file 
+##
+#  count lines in given file 
 def get_file_lines(file):
     path = "logs_and_input_files/input_files_for_each_server_reviews/"
     path = path + file
@@ -340,12 +344,43 @@ def get_file_lines(file):
     return line_count
 
 
-#Get next category from file
+##
+#  Get next category from file
 def get_next_page(page_file):
     return page_file.readline()
 
+## 
+# Parse arguments
+def parse_args():
+        
+        parser = argparse.ArgumentParser(description='KNOT - product reviews in czech - Author: Jakub Kuzník {xkuzni04} \
+        ', add_help=False)
+        parser.add_argument("-h", "--help", action="count", default=0, help="tisk napovedy")
+        
+        try:
+                args = parser.parse_args()
+        except:
+                sys.exit(1)
+
+        if(args.help == 1):
+                if(len(sys.argv) == 2):
+                        parser.print_help()
+                        print("\n\nProgram otevře vstupní soubor který je stejný jako hostname serveru logs_and_input_files/input_files_for_each_server_reviews/hostname\nPostupně začne ukládat veškeré url jednotlivých produktů do souboru logs_and_input_files/all_zbozi.cz_reviews.log \n")
+                        sys.exit(0)
+                else:
+                        print("Error: Help with other argument", file=sys.stderr)
+                        sys.exit(1)
+
+        return args
+
+
+
 
 def main():
+
+
+    parse_args()
+
 
     server_host_name = socket.gethostname() # Get system hostname
 
