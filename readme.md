@@ -1,7 +1,9 @@
 # Product_reviews_in_czech
 
 FIT VUT <br />
-KNOT@FIT - Knowledge Technology Research Group - KNOT <br />
+KNOT@FIT - Knowledge Technology Research Group - KNOT <br /><br />
+
+
 
 = Product_reviews_in_czech =
 __NOTITLE____NOTOC__
