@@ -1,5 +1,7 @@
 # Product_reviews_in_czech
 
+scrape all data from zbozi.cz
+
 FIT VUT <br />
 KNOT@FIT - Knowledge Technology Research Group - KNOT <br /><br />
 
