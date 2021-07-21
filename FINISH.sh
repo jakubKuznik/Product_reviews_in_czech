@@ -9,7 +9,8 @@ LINE_SUM=0		## based on that i will count how many lines should every server get
 SERVERS_SUM=62 		## How many servers are there
 
 USERNAME="unknown"	## Username for KNOT servers
-
+PRODUCT_START="false"	## If i would run products_url_downloader
+REVIEW_START="false"	## if i would run review_downloader.py
 
 
 cat /dev/null > .line_separator_start  # Clear line_separator_starter
@@ -28,9 +29,12 @@ print_help()
 	echo "-u username"     .... Your username for knot servers [for example xkuzni04] without that 
 	echo " .................... you cannot run COMMANDS"
 	echo "COMMANDS"
-	echo ".. --product_url .... Run products_url_downloader.py on all servers using paralel ssh."
-	echo "..................... It downloads all the product url to all_zbozi.cz_products_url.log "
-	echo ".. --reviews ........ List of profit from lock positions."
+	echo ".. --product_url .... Run products_url_downloader.py on all KNOT servers using paralel ssh."
+	echo "..................... It downloads all the product url to all_zbozi.cz_products_url.log. "
+	echo "..................... NEEDS USERNAME"
+	echo ".. --reviews ........ Run all_zbozi.cz_reviews.log on all KNOT servers using paralel ssh"
+	echo "..................... it download product revies and store them to all_zbozi.cz_reviews.log"
+	echo "..................... NEED USERNAME! (-u)"
 	echo "HELP"
 	echo ".. -h --help ...... Print help "
 	exit 0
@@ -40,13 +44,14 @@ print_help()
 # Parse input arguments and COMMANDS 
 argument_parser()
 {
-	width_indicator="0"
+	echo "chuj"
+	echo "$#"
+	
+
 	if [ "$#" -eq "0" ];then
 		return 0	
 	fi
 	while [ "$#" -gt 0 ]; do
-
-		#COMMAND##################
 		case "$1" in #COMMANDS THERE CAN BE ONLY ONE 
 		#HELP###############
 		-h)
@@ -56,44 +61,24 @@ argument_parser()
 			print_help
 			;;
 		--producit_url)
-			if [ -z "$2" ]; then
-				echo "ERROR missing argument after -t" >&2 
-				exit 2	
-			fi
+			PRODUCT_START="true"	## If i would run products_url_downloader
 			shift; ;;
 		--reviews)
+			REVIEW_START="true"	## if i would run review_downloader.py
+			shift; ;;
+		-u)
 			if [ -z "$2" ]; then
-				echo "ERROR missing argument after -t" >&2 
+				echo "ERROR missing argument after -u" >&2 
 				exit 2	
 			fi
-			
+			USERNAME="$2"
+			shift; shift; ;;
+		*) 
 			shift; ;;
-		
-		-w) #width
 
-			if [ "$width_indicator" -eq "1" ]; then
-				echo "ERROR width parameter." >&2 
-				exit 2	
-			fi
-			width_indicator="1"
-			if [ "$2" -gt "0" ]; then
-				WIDTH="$2"
-			else
-				echo "ERROR width has to be positive number." >&2 
-				exit 2	
-			fi
-			shift;shift; ;;
-		
-		#LOG#################
-		*) #GETING LOG FILES THERE CAN BE MULTIPLE 
-			if [ `echo  "$1" | grep "\.gz"` ]; then  	#if file ends with .gz
-				GZ_LOG_FILES="$1 $GZ_LOG_FILES"		
-			else
-				LOG_FILES="$1 $LOG_FILES"
-			fi
-			shift; ;;
 		esac
 	done
+	echo "uuu"
 }
 
 
@@ -135,6 +120,7 @@ divide_log_to_all_servers()
 	done
 }
 
+argument_parser "$@" 		# Parse arguments and store them.
 
 ### Delete duplicated lines and copy file: all_zbozi.cz_categories_url.log
 # backup
