@@ -8,7 +8,93 @@ PATH_TO_PROGRAM=""  	## What log will i divide to multiple logs for each serer
 LINE_SUM=0		## based on that i will count how many lines should every server get 
 SERVERS_SUM=62 		## How many servers are there
 
-cat /dev/null > .line_separator_start #Clear line_separator_starter
+USERNAME="unknown"	## Username for KNOT servers
+
+
+
+cat /dev/null > .line_separator_start  # Clear line_separator_starter
+
+##
+# Just printi help and exit with code 0
+print_help()
+{
+
+	echo "This shell script always backup logs and prepare input files for each server."
+	echo "U can start zbozi.cz scape scripts using some commands."
+	echo "Warning it starts downloading on all 62 KNOT serveres so it could cause some network trafic."
+	echo "............................................................................................."
+	echo "Usage: FINISH.sh [-h|--help] [--product_url] [-u username]"
+	echo "............................................................................................."
+	echo "-u username"     .... Your username for knot servers [for example xkuzni04] without that 
+	echo " .................... you cannot run COMMANDS"
+	echo "COMMANDS"
+	echo ".. --product_url .... Run products_url_downloader.py on all servers using paralel ssh."
+	echo "..................... It downloads all the product url to all_zbozi.cz_products_url.log "
+	echo ".. --reviews ........ List of profit from lock positions."
+	echo "HELP"
+	echo ".. -h --help ...... Print help "
+	exit 0
+}
+
+##
+# Parse input arguments and COMMANDS 
+argument_parser()
+{
+	width_indicator="0"
+	if [ "$#" -eq "0" ];then
+		return 0	
+	fi
+	while [ "$#" -gt 0 ]; do
+
+		#COMMAND##################
+		case "$1" in #COMMANDS THERE CAN BE ONLY ONE 
+		#HELP###############
+		-h)
+			print_help
+			;;
+		--help)
+			print_help
+			;;
+		--producit_url)
+			if [ -z "$2" ]; then
+				echo "ERROR missing argument after -t" >&2 
+				exit 2	
+			fi
+			shift; ;;
+		--reviews)
+			if [ -z "$2" ]; then
+				echo "ERROR missing argument after -t" >&2 
+				exit 2	
+			fi
+			
+			shift; ;;
+		
+		-w) #width
+
+			if [ "$width_indicator" -eq "1" ]; then
+				echo "ERROR width parameter." >&2 
+				exit 2	
+			fi
+			width_indicator="1"
+			if [ "$2" -gt "0" ]; then
+				WIDTH="$2"
+			else
+				echo "ERROR width has to be positive number." >&2 
+				exit 2	
+			fi
+			shift;shift; ;;
+		
+		#LOG#################
+		*) #GETING LOG FILES THERE CAN BE MULTIPLE 
+			if [ `echo  "$1" | grep "\.gz"` ]; then  	#if file ends with .gz
+				GZ_LOG_FILES="$1 $GZ_LOG_FILES"		
+			else
+				LOG_FILES="$1 $LOG_FILES"
+			fi
+			shift; ;;
+		esac
+	done
+}
 
 
 ## Divide categories to files 
