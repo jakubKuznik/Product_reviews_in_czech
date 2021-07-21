@@ -44,10 +44,6 @@ print_help()
 # Parse input arguments and COMMANDS 
 argument_parser()
 {
-	echo "chuj"
-	echo "$#"
-	
-
 	if [ "$#" -eq "0" ];then
 		return 0	
 	fi
@@ -120,57 +116,75 @@ divide_log_to_all_servers()
 	done
 }
 
+categories_backup_and_store()
+{
+	### Delete duplicated lines and copy file: all_zbozi.cz_categories_url.log
+	# backup
+	cp logs_and_input_files/all_zbozi.cz_categories_url.log logs_and_input_files/backup_all_zbozi.cz_categories_url.log
+	# delete duplicated lines 
+	cat logs_and_input_files/all_zbozi.cz_categories_url.log | uniq -u > .help
+	cat .help > logs_and_input_files/all_zbozi.cz_categories_url.log
+	# copy to project root directory 
+	cp logs_and_input_files/all_zbozi.cz_categories_url.log all_zbozi.cz_categories_url.log
+	cp logs_and_input_files/all_zbozi.cz_categories_url.log logs_and_input_files/input_files_for_each_server_products/all_zbozi.cz_categories_url.log
+}
+divide_categories_set_variables()
+{
+	PATH_TO_PROGRAM="logs_and_input_files/input_files_for_each_server_products"
+	# Count how many categories are there
+	CATEGORIES_FILE="logs_and_input_files/input_files_for_each_server_products/all_zbozi.cz_categories_url.log"
+	CATEGORIES_SUM=$(wc -l "$CATEGORIES_FILE" | awk '{print $1}')
+	# Just count how many lines will every file contain it looks hard but just do CATEGORIES_SUM / SERVERS_SUM and store to LINE_SUM 
+	LINE_SUM=`echo "$LINE_SUM" | awk -v a=$CATEGORIES_SUM -v b=$SERVERS_SUM '{result = a / b + 1}END{printf("%f",result)}' `; LINE_SUM=`printf %.0f $LINE_SUM`
+}
+products_backup_and_store()
+{
+	### Delete duplicated lines and copy file: all_zbozi.cz_products_url.log
+	# backup
+	cp logs_and_input_files/all_zbozi.cz_products_url.log logs_and_input_files/backup_all_zbozi.cz_products_url.log
+	# delete duplicated 
+	cat logs_and_input_files/all_zbozi.cz_products_url.log | uniq -u > .help
+	cat .help > logs_and_input_files/all_zbozi.cz_products_url.log
+	# copy to project root directory 
+	cp logs_and_input_files/all_zbozi.cz_products_url.log all_zbozi.cz_products_url.log
+}
+divide_product_set_variables()
+{
+	PATH_TO_PROGRAM="logs_and_input_files/input_files_for_each_server_reviews"
+
+	PRODUCT_FILE="logs_and_input_files/input_files_for_each_server_reviews/all_zbozi.cz_products_url.log"
+	PRODUCT_URL_SUM=$(wc -l "$PRODUCT_FILE" | awk '{print $1}')
+	PATH_TO_PROGRAM="logs_and_input_files/input_files_for_each_server_reviews"
+
+	# Just count how many lines will every file contain it looks hard but just do PRODUCT_URL_SUM / SERVERS_SUM and store to LINE_SUM 
+	LINE_SUM=`echo "$LINE_SUM" | awk -v a=$PRODUCT_URL_SUM -v b=$SERVERS_SUM '{result = a / b + 1}END{printf("%f",result)}' `; LINE_SUM=`printf %.0f $LINE_SUM`
+}
+review_backup_and_store()
+{
+	### Backup and copz reviews file: all_zbozi.cz_reviews.log 
+	cp logs_and_input_files/all_zbozi.cz_reviews.log all_zbozi.cz_reviews.log
+	cp logs_and_input_files/all_zbozi.cz_reviews.log logs_and_input_files/backup_all_zbozi.cz_reviews.log
+}
+
+
 argument_parser "$@" 		# Parse arguments and store them.
-
-### Delete duplicated lines and copy file: all_zbozi.cz_categories_url.log
-# backup
-cp logs_and_input_files/all_zbozi.cz_categories_url.log logs_and_input_files/backup_all_zbozi.cz_categories_url.log
-# delete duplicated lines 
-cat logs_and_input_files/all_zbozi.cz_categories_url.log | uniq -u > .help
-cat .help > logs_and_input_files/all_zbozi.cz_categories_url.log
-# copy to project root directory 
-cp logs_and_input_files/all_zbozi.cz_categories_url.log all_zbozi.cz_categories_url.log
-cp logs_and_input_files/all_zbozi.cz_categories_url.log logs_and_input_files/input_files_for_each_server_products/all_zbozi.cz_categories_url.log
-
-
-PATH_TO_PROGRAM="logs_and_input_files/input_files_for_each_server_products"
-# Count how many categories are there
-CATEGORIES_FILE="logs_and_input_files/input_files_for_each_server_products/all_zbozi.cz_categories_url.log"
-CATEGORIES_SUM=$(wc -l "$CATEGORIES_FILE" | awk '{print $1}')
-# Just count how many lines will every file contain it looks hard but just do CATEGORIES_SUM / SERVERS_SUM and store to LINE_SUM 
-LINE_SUM=`echo "$LINE_SUM" | awk -v a=$CATEGORIES_SUM -v b=$SERVERS_SUM '{result = a / b + 1}END{printf("%f",result)}' `; LINE_SUM=`printf %.0f $LINE_SUM`
-
-divide_log_to_all_servers ### FUNCTION GENERATE line_separator.c starter
-
+categories_backup_and_store
+divide_categories_set_variables
+divide_log_to_all_servers 	### FUNCTION GENERATE line_separator.c starter
+				## Now divide categories to files for each server 
 echo "Categories: $CATEGORIES_SUM"
 
-
-### Delete duplicated lines and copy file: all_zbozi.cz_products_url.log
-# backup
-cp logs_and_input_files/all_zbozi.cz_products_url.log logs_and_input_files/backup_all_zbozi.cz_products_url.log
-# delete duplicated 
-cat logs_and_input_files/all_zbozi.cz_products_url.log | uniq -u > .help
-cat .help > logs_and_input_files/all_zbozi.cz_products_url.log
-# copy to project root directory 
-cp logs_and_input_files/all_zbozi.cz_products_url.log all_zbozi.cz_products_url.log
-
-PATH_TO_PROGRAM="logs_and_input_files/input_files_for_each_server_reviews"
-
-PRODUCT_FILE="logs_and_input_files/input_files_for_each_server_reviews/all_zbozi.cz_products_url.log"
-PRODUCT_URL_SUM=$(wc -l "$PRODUCT_FILE" | awk '{print $1}')
-PATH_TO_PROGRAM="logs_and_input_files/input_files_for_each_server_reviews"
-
-# Just count how many lines will every file contain it looks hard but just do PRODUCT_URL_SUM / SERVERS_SUM and store to LINE_SUM 
-LINE_SUM=`echo "$LINE_SUM" | awk -v a=$PRODUCT_URL_SUM -v b=$SERVERS_SUM '{result = a / b + 1}END{printf("%f",result)}' `; LINE_SUM=`printf %.0f $LINE_SUM`
-divide_log_to_all_servers ### FUNCTION GENERATE line_separator.c starter
+products_backup_and_store
+divide_product_set_variables
+divide_log_to_all_servers 	### FUNCTION GENERATE line_separator.c starter
+				## Now divide product_url to files for each server 
 
 echo "Products URL: $PRODUCT_URL_SUM"
 
-./.line_separator_start &
+./.line_separator_start &       ## Start dividing logs to file for each server.
+				# generated bz divide_log_to_all_servers file
 
-### Backup and copz reviews file: all_zbozi.cz_reviews.log 
-cp logs_and_input_files/all_zbozi.cz_reviews.log all_zbozi.cz_reviews.log
-cp logs_and_input_files/all_zbozi.cz_reviews.log logs_and_input_files/backup_all_zbozi.cz_reviews.log
+review_backup_and_store
 
 
 
