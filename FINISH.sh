@@ -8,10 +8,12 @@ PATH_TO_PROGRAM=""  	## What log will i divide to multiple logs for each serer
 LINE_SUM=0		## based on that i will count how many lines should every server get 
 SERVERS_SUM=62 		## How many servers are there
 
-USERNAME="unknown"	## Username for KNOT servers
+USERNAME="xkuzni04"	## Username for KNOT servers
 PRODUCT_START="false"	## If i would run products_url_downloader
 REVIEW_START="false"	## if i would run review_downloader.py
 
+SERVERS_FILE="KNOT_SERVERS"   	     #File with all servers name and username that is used for parallel ssh conection
+KNOT_SERVERS=$(cat "$SERVERS_FILE")
 
 cat /dev/null > .line_separator_start  # Clear line_separator_starter
 
@@ -166,6 +168,17 @@ review_backup_and_store()
 	cp logs_and_input_files/all_zbozi.cz_reviews.log logs_and_input_files/backup_all_zbozi.cz_reviews.log
 }
 
+##
+# Set username in KNOT_SERVERS file.
+# Using awk separator is ' '
+# USERNAME is stored in variable $USERNAME u can change it using parameter -u
+set_username()
+{
+	
+	KNOT_SERVERS=`echo "$KNOT_SERVERS" | awk -F ' ' -v u=$USERNAME '{$2=u ; print}'`   
+	echo "$KNOT_SERVERS" > "$SERVERS_FILE" 
+	echo "username: $USERNAME"	
+}
 
 argument_parser "$@" 		# Parse arguments and store them.
 categories_backup_and_store
@@ -180,9 +193,13 @@ divide_log_to_all_servers 	### FUNCTION GENERATE line_separator.c starter
 				## Now divide product_url to files for each server 
 
 echo "Products URL: $PRODUCT_URL_SUM"
-
 ./.line_separator_start &       ## Start dividing logs to file for each server.
 				# generated bz divide_log_to_all_servers file
+
+####### PARALEL SSH RUN ON REMOTE SERVER SECTION 
+set_username 			# Set username for Knot servers in KNOT_SERVERS file that is used for paralel ssh 
+
+################################################
 
 review_backup_and_store
 
