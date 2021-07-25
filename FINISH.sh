@@ -25,20 +25,24 @@ print_help()
 	echo "This shell script always backup logs and prepare input files for each server."
 	echo "U can start zbozi.cz scape scripts using some commands."
 	echo "Warning it starts downloading on all 62 KNOT serveres so it could cause some network trafic."
-	echo "............................................................................................."
+	echo ""
+	echo ""
 	echo "Usage: FINISH.sh [-h|--help] [--product_url] [-u username]"
-	echo "............................................................................................."
-	echo "-u username"     .... Your username for knot servers [for example xkuzni04] without that 
-	echo " .................... you cannot run COMMANDS"
+	echo ""
+	echo ""
+	echo "-u username"    .... Your username for knot servers [for example xkuzni04] without that 
+	echo "                .... you cannot run COMMANDS"
+	echo ""
 	echo "COMMANDS"
-	echo ".. --product_url .... Run products_url_downloader.py on all KNOT servers using paralel ssh."
-	echo "..................... It downloads all the product url to all_zbozi.cz_products_url.log. "
-	echo "..................... NEEDS USERNAME"
-	echo ".. --reviews ........ Run all_zbozi.cz_reviews.log on all KNOT servers using paralel ssh"
-	echo "..................... it download product revies and store them to all_zbozi.cz_reviews.log"
-	echo "..................... NEED USERNAME! (-u)"
+	echo "  --product_url .... Run products_url_downloader.py on all KNOT servers using paralel ssh."
+	echo "                .... It downloads all the product url to all_zbozi.cz_products_url.log. "
+	echo "                .... NEEDS USERNAME"
+	echo "  --reviews     .... Run all_zbozi.cz_reviews.log on all KNOT servers using paralel ssh"
+	echo "                .... it download product revies and store them to all_zbozi.cz_reviews.log"
+	echo "                .... NEED USERNAME! (-u)"
+	echo ""
 	echo "HELP"
-	echo ".. -h --help ...... Print help "
+	echo "   -h --help    .... Print help "
 	exit 0
 }
 
@@ -180,6 +184,22 @@ set_username()
 	echo "username: $USERNAME"	
 }
 
+## RUN ./run_product_download.sh 
+# on all the servers stored in:  KNOT_SERVERS
+run_product_download_on_all_servers()
+{
+	parallel-ssh -A -h KNOT_SERVERS "/mnt/minerva1/knot/projects/product_reviews_in_czech/run_product_download.sh"
+}
+
+## RUN ./run_review_download.sh 
+# on all the servers stored in: KNOT_SERVERS
+run_review_download_on_all_servers()
+{
+	parallel-ssh -A -h KNOT_SERVERS "/mnt/minerva1/knot/projects/product_reviews_in_czech/run_review_download.sh"
+}
+
+
+
 argument_parser "$@" 		# Parse arguments and store them.
 categories_backup_and_store
 divide_categories_set_variables
@@ -195,13 +215,12 @@ divide_log_to_all_servers 	### FUNCTION GENERATE line_separator.c starter
 echo "Products URL: $PRODUCT_URL_SUM"
 ./.line_separator_start &       ## Start dividing logs to file for each server.
 				# generated bz divide_log_to_all_servers file
+review_backup_and_store
+
 
 ####### PARALEL SSH RUN ON REMOTE SERVER SECTION 
 set_username 			# Set username for Knot servers in KNOT_SERVERS file that is used for paralel ssh 
-
 ################################################
-
-review_backup_and_store
 
 
 
