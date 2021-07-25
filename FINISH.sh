@@ -30,7 +30,7 @@ print_help()
 	echo "Usage: FINISH.sh [-h|--help] [--product_url] [-u username]"
 	echo ""
 	echo ""
-	echo "-u username"    .... Your username for knot servers [for example xkuzni04] without that 
+	echo "-u username"      .... Your username for knot servers [for example xkuzni04] without that 
 	echo "                .... you cannot run COMMANDS"
 	echo ""
 	echo "COMMANDS"
@@ -62,7 +62,7 @@ argument_parser()
 		--help)
 			print_help
 			;;
-		--producit_url)
+		--product_url)
 			PRODUCT_START="true"	## If i would run products_url_downloader
 			shift; ;;
 		--reviews)
@@ -219,8 +219,17 @@ review_backup_and_store
 
 
 ####### PARALEL SSH RUN ON REMOTE SERVER SECTION 
-set_username 			# Set username for Knot servers in KNOT_SERVERS file that is used for paralel ssh 
-################################################
 
+set_username 			# Set username for Knot servers in KNOT_SERVERS file that is used for paralel ssh 
+
+if [ "$PRODUCT_START" = "true" ]; then
+    echo "PRODUCT DOWNLOAD RUN"
+    run_product_download_on_all_servers
+fi
+if [ "$REVIEW_START" = "true" ]; then
+	echo "REVIEW DOWNLOAD RUN"
+	run_review_download_on_all_servers
+fi
+################################################
 
 
