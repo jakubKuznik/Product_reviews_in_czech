@@ -151,7 +151,7 @@ def parse_args():
                         sys.exit(0)
                 else:
                         print("Error: Help with other argument", file=sys.stderr)
-                        sys.exit(1)
+                        sys.exit()
 
         return args
 
@@ -176,6 +176,7 @@ def main():
 
     output_file.close()
     category_file.close()
+    driver.close()
 #    display.stop()
 
 if __name__ == '__main__':

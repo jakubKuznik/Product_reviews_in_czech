@@ -182,7 +182,7 @@ def main():
 
     for item in catlist:
         output_file.write("%s\n" % item)
-
+    driver.close()
     display.stop()
 
 if __name__ == '__main__':

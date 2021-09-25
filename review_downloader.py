@@ -409,6 +409,7 @@ def main():
 
     output_file.close()
     page_file.close()
+    driver.close()
 #    display.stop()
 
 
