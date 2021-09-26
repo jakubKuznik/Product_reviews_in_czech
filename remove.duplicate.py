@@ -45,23 +45,56 @@ def tempo_file():
     target = "temp_reviews_log"
     shutil.copyfile(original, target)
 
+def fix_space():
+    file = open('temp_reviews_log', 'r')
+    n = 0
+    while 1:
+        # read by character
+        char = file.read(1)         
+        if not char:
+            break
+        if char == '}':
+            char = file.read(1)
+            while 1:
+                if char == ',':
+                    break
+                if char == ' ':
+                    char = file.read(1)
+                    continue
+                elif char == '\n':
+                    n = n+1
+                    char = file.read(1)
+                    continue
+                elif char == '{':
+                    print(char, n)
+                    
+                    char = file.read(1)
+                    break
+                else:
+                    break 
+        if char == '\n':
+            n = n+1
+
+    file.close()
+
 
 def main():
     tempo_file()
 
-    line_prepender("[", "temp_reviews_log" )
-    line_appender("]", "temp_reviews_log")
+    tf = "temp_reviews_log" #temp file
 
+    line_prepender("[", tf )
+    line_appender("]", tf)
 
+    fix_space()
+    #TODO PRIDAT DELIMETRY  },{review{}
+    #Najít radky a pridat carky na dane rádky 
 
-
-'''
-    f = open('all_zbozi.cz_reviews.log', 'r')
-    data = f.read()
+    tempf = open(tf, 'r')
+    data = tempf.read()
     json_data = json.loads(data)
     print(json_data)
-    f.close()
-'''
+    tempf.close()
 
 
 
