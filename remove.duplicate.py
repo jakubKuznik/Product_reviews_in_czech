@@ -11,12 +11,8 @@ from collections import OrderedDict
 from datetime import date, timedelta
 import json 
 from urllib.parse import uses_fragment
-import requests
 import time
-import argparse
-import socket
 import sys
-import os
 from typing import List, Any
 from urllib.request import urlopen
 
@@ -25,8 +21,11 @@ sys.path.insert(0, '.')
 import collections
 orderedDict = collections.OrderedDict()
 from collections import OrderedDict
-
 import shutil
+
+
+
+lines = [] 
 
 def line_prepender(line, file):
     with open(file, 'r+') as f:
@@ -45,7 +44,7 @@ def tempo_file():
     target = "temp_reviews_log"
     shutil.copyfile(original, target)
 
-def fix_space():
+def find_space():
     file = open('temp_reviews_log', 'r')
     n = 0
     while 1:
@@ -55,27 +54,89 @@ def fix_space():
             break
         if char == '}':
             char = file.read(1)
+            n = n+1
             while 1:
                 if char == ',':
                     break
                 if char == ' ':
                     char = file.read(1)
+                    n = n+1
                     continue
                 elif char == '\n':
-                    n = n+1
                     char = file.read(1)
+                    n = n+1
                     continue
                 elif char == '{':
-                    print(char, n)
-                    
+                    lines.append(n) 
                     char = file.read(1)
+                    n = n+1
                     break
                 else:
                     break 
-        if char == '\n':
-            n = n+1
 
+        n = n+1
     file.close()
+    
+def get_nth_json_file(index):
+
+    if index >= len(lines):
+        return
+    file = open('temp_reviews_log', 'r')
+
+    file_out = open('temp_one_json', 'w')
+    file_out.close()
+    
+    file_out = open('temp_one_json', 'a')
+
+    if index == 0:
+
+        start = 0
+    else:
+        start = lines[index-1]
+        start = start -1
+
+    end = lines[index]
+    end = end - 1
+    n = 0
+    
+    
+    while 1:
+        char = file.read(1)
+        if n == start:
+            break
+        n = n+1
+    
+
+    char = ''
+    while 1:
+        char = file.read(1)
+        file_out.write(char)
+        n += 1
+        if n == end:
+            break
+        if char == '':
+            break
+
+    file_out.close()
+    file.close()
+
+def create_final_json():
+
+    result = []
+    n = 0
+    while 1:
+        get_nth_json_file(n)
+        with open("temp_one_json", "rb") as infile:
+            result.append(json.load(infile))
+        n += 1
+        if n == len(lines):
+            return 
+
+    with open("final_json", "wb") as outfile:
+        json.dump(result, outfile)
+
+
+
 
 
 def main():
@@ -86,17 +147,11 @@ def main():
     line_prepender("[", tf )
     line_appender("]", tf)
 
-    fix_space()
-    #TODO PRIDAT DELIMETRY  },{review{}
-    #Najít radky a pridat carky na dane rádky 
-
-    tempf = open(tf, 'r')
-    data = tempf.read()
-    json_data = json.loads(data)
-    print(json_data)
-    tempf.close()
-
-
+    find_space()
+    
+    
+    get_nth_json_file(len(lines))
+    create_final_json()
 
 
 if __name__ == '__main__':
