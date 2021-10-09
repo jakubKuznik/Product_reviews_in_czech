@@ -200,19 +200,22 @@ run_review_download_on_all_servers()
 
 
 
+python3 remove.duplicate.py && rm *.json && cp final_json all_zbozi.cz_reviews.log
+
+
 argument_parser "$@" 		# Parse arguments and store them.
 categories_backup_and_store
 divide_categories_set_variables
 divide_log_to_all_servers 	### FUNCTION GENERATE line_separator.c starter
 				## Now divide categories to files for each server 
-echo "Categories: $CATEGORIES_SUM"
+#echo "Categories: $CATEGORIES_SUM"
 
 products_backup_and_store
 divide_product_set_variables
 divide_log_to_all_servers 	### FUNCTION GENERATE line_separator.c starter
 				## Now divide product_url to files for each server 
 
-echo "Products URL: $PRODUCT_URL_SUM"
+#echo "Products URL: $PRODUCT_URL_SUM"
 ./.line_separator_start &       ## Start dividing logs to file for each server.
 				# generated bz divide_log_to_all_servers file
 review_backup_and_store
